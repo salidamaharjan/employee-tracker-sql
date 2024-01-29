@@ -14,10 +14,15 @@ async function displayQuestion() {
       name: "choices",
       type: "list",
       message: "What do you want to do?",
-      choices: ["Add a department", "View all department"],
+      choices: [
+        "Add a department",
+        "View all department",
+        "View role",
+        "Add role",
+      ],
     },
   ]);
-  console.log(choices);
+  // console.log(choices);
   switch (choices) {
     case "Add a department":
       const { departmentName } = await inquirer.prompt([
@@ -35,8 +40,38 @@ async function displayQuestion() {
       console.log("Department inserted");
       break;
     case "View all department":
-      const [result] = await db.query("SELECT * FROM department");
-      console.table(result);
+      const [departments] = await db.query("SELECT * FROM department");
+      console.table(departments);
+      break;
+    case "View role":
+      const [roles] = await db.query("SELECT * FROM role");
+      console.table(roles);
+      break;
+    case "Add role":
+      const [roleDepartments] = await db.query("SELECT * FROM department");      
+     const {role, salary, roleDepartment} = await inquirer.prompt([
+        {
+          name: "role",
+          type: "input",
+          message: "What is the name of the role?"
+        },{
+          name: "salary",
+          type: "input",
+          message: "What is the salary of the role?"
+        },{
+          name: "roleDepartment",
+          type: "list",
+          message: "Which department does the role belong to?",
+          choices: roleDepartments
+        }
+      ]);
+     const { id } = roleDepartments.find((department) => {
+        return department.name === roleDepartment
+      });
+      const roleTable = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+      const roleValues = [role, salary, id];
+      await db.execute(roleTable, roleValues);
+      console.log("Role added");
       break;
   }
   displayQuestion();
