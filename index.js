@@ -15,15 +15,54 @@ async function displayQuestion() {
       type: "list",
       message: "What do you want to do?",
       choices: [
-        "Add Department",
-        "View All Departments",
+        "View All Employee",
+        "Add Employee",
         "View All Roles",
-        "Add Role"
+        "Add Role",
+        "View All Departments",
+        "Add Department",
       ],
     },
   ]);
   // console.log(choices);
   switch (choices) {
+    case "View All Employee":
+      const [employees] = await db.query("SELECT * FROM employee");
+      console.table(employees);
+      break;
+
+    case "Add Employee":
+      const [employeeRoles] = await db.query("SELECT id, title FROM role");
+      console.log(employeeRoles);
+      const { firstName, lastName, employeeRole, employeeManager } =
+        await inquirer.prompt([
+          {
+            name: "firstName",
+            type: "input",
+            message: "What is the employee's first name?",
+          },
+          {
+            name: "lastName",
+            type: "input",
+            message: "What is the employees's last name?",
+          },
+          {
+            name: "employeeRole",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: employeeRoles.map((employee) => {
+              return employee.title;
+            }),
+          },
+          {
+            name: "employeeManager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: "",
+          },
+        ]);
+      break;
+
     case "Add Department":
       const { departmentName } = await inquirer.prompt([
         {
@@ -51,27 +90,30 @@ async function displayQuestion() {
       break;
 
     case "Add Role":
-      const [roleDepartments] = await db.query("SELECT * FROM department");      
-     const {role, salary, roleDepartment} = await inquirer.prompt([
+      const [roleDepartments] = await db.query("SELECT * FROM department");
+      const { role, salary, roleDepartment } = await inquirer.prompt([
         {
           name: "role",
           type: "input",
-          message: "What is the name of the role?"
-        },{
+          message: "What is the name of the role?",
+        },
+        {
           name: "salary",
           type: "input",
-          message: "What is the salary of the role?"
-        },{
+          message: "What is the salary of the role?",
+        },
+        {
           name: "roleDepartment",
           type: "list",
           message: "Which department does the role belong to?",
-          choices: roleDepartments
-        }
+          choices: roleDepartments,
+        },
       ]);
-     const { id } = roleDepartments.find((department) => {
-        return department.name === roleDepartment
+      const { id } = roleDepartments.find((department) => {
+        return department.name === roleDepartment;
       });
-      const roleTable = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+      const roleTable =
+        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
       const roleValues = [role, salary, id];
       await db.execute(roleTable, roleValues);
       console.log("Role added");
