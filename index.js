@@ -15,16 +15,16 @@ async function displayQuestion() {
       type: "list",
       message: "What do you want to do?",
       choices: [
-        "Add a department",
-        "View all department",
-        "View role",
-        "Add role",
+        "Add Department",
+        "View All Departments",
+        "View All Roles",
+        "Add Role"
       ],
     },
   ]);
   // console.log(choices);
   switch (choices) {
-    case "Add a department":
+    case "Add Department":
       const { departmentName } = await inquirer.prompt([
         {
           name: "departmentName",
@@ -39,15 +39,18 @@ async function displayQuestion() {
       await db.execute(sql, values);
       console.log("Department inserted");
       break;
-    case "View all department":
+
+    case "View All Departments":
       const [departments] = await db.query("SELECT * FROM department");
       console.table(departments);
       break;
-    case "View role":
+
+    case "View All Roles":
       const [roles] = await db.query("SELECT * FROM role");
       console.table(roles);
       break;
-    case "Add role":
+
+    case "Add Role":
       const [roleDepartments] = await db.query("SELECT * FROM department");      
      const {role, salary, roleDepartment} = await inquirer.prompt([
         {
