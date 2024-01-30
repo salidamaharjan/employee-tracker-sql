@@ -168,13 +168,22 @@ async function displayQuestion() {
       break;
 
     case "View All Departments":
-      const [departments] = await db.query("SELECT * FROM department");
+      const [departments] = await db.query(`
+      SELECT 
+          department.id AS 'Department ID',
+          department.name AS 'Department Name'
+        FROM department`);
       printTable(departments);
       break;
 
     case "View All Roles":
       const [roles] =
-        await db.query(`SELECT role.id, role.title, role.salary, department.name 
+        await db.query(`
+        SELECT 
+          role.id AS 'Role ID', 
+          role.title AS 'Role Title', 
+          role.salary AS Salary, 
+          department.name AS 'Department Name'
       FROM role
         INNER JOIN department 
           ON role.department_id = department.id
