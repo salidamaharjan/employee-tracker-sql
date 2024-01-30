@@ -2,6 +2,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 const { printTable } = require("console-table-printer");
+const { viewAllDepartments } = require("./department.js");
 displayQuestion();
 
 /**
@@ -23,7 +24,7 @@ async function displayQuestion() {
         "Add Role",
         "View All Departments",
         "Add Department",
-        "Quit"
+        "Quit",
       ],
     },
   ]);
@@ -169,17 +170,11 @@ async function displayQuestion() {
       break;
 
     case "View All Departments":
-      const [departments] = await db.query(`
-      SELECT 
-          department.id AS 'Department ID',
-          department.name AS 'Department Name'
-        FROM department`);
-      printTable(departments);
+      viewAllDepartments(db);
       break;
 
     case "View All Roles":
-      const [roles] =
-        await db.query(`
+      const [roles] = await db.query(`
         SELECT 
           role.id AS 'Role ID', 
           role.title AS 'Role Title', 
