@@ -17,6 +17,7 @@ async function displayQuestion() {
       choices: [
         "View All Employee",
         "Add Employee",
+        "Update Employee Role",
         "View All Roles",
         "Add Role",
         "View All Departments",
@@ -73,8 +74,8 @@ async function displayQuestion() {
         return item.title === employeeRole;
       });
       const { id: managerId } = employeeManagers.find((item) => {
-        console.log("employeeManager", employeeManager);
-        console.log(item.first_name + " " + item.last_name);
+        // console.log("employeeManager", employeeManager);
+        // console.log(item.first_name + " " + item.last_name);
         const employeeFullName = item.first_name + " " + item.last_name;
         return employeeFullName === employeeManager;
       });
@@ -88,6 +89,45 @@ async function displayQuestion() {
       ];
       await db.execute(employeeTable, employeeValues);
       console.log("Employee added");
+      break;
+
+    case "Update Employee Role":
+      const [employeeNames] = await db.query("SELECT id, first_name, last_name FROM employee")
+      const [roleEmployees] = await db.query("SELECT id, title FROM role");
+      const employeeName = employeeNames.map((name) => {
+        return `${name.first_name} ${name.last_name}`;
+      });
+      // console.log(roleEmployees);
+      // console.log(employeeNames);
+     const { nameEmployee, toRole} = await inquirer.prompt([
+        {
+          name: "nameEmployee",
+          type: "list",
+          message: "Which employee role you want to update?",
+          choices: employeeName
+        },
+        {
+          name: "toRole",
+          type: "list",
+          message: "Which role do you want to assign the selected employee?",
+          choices: roleEmployees.map((employee) => {
+            return employee.title;
+          }),
+        },
+      ]);
+      const {id: employeeID} = employeeNames.find((item) => {
+        const employeeFullName = item.first_name + " " + item.last_name;
+        return employeeFullName === nameEmployee;
+      });
+      const {id: roleID} = roleEmployees.find((item) => {
+        return item.title === toRole;
+      });
+      console.log(employeeID);
+      console.log(roleID);
+      const updatedEmployeeTable = ("UPDATE employee SET role_id = ? WHERE id = ?");
+      const valuesUpdate = [roleID, employeeID];
+      await db.execute(updatedEmployeeTable, valuesUpdate);
+      console.log("Employee Role updated");
       break;
 
     case "Add Department":
