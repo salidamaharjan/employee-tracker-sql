@@ -33,7 +33,15 @@ async function displayQuestion() {
 
     case "Add Employee":
       const [employeeRoles] = await db.query("SELECT id, title FROM role");
-      console.log(employeeRoles);
+      // console.log(employeeRoles);
+      const [employeeManagers] = await db.query(
+        "SELECT id, first_name, last_name FROM employee"
+      );
+      const employeeManagerChoice = employeeManagers.map((manager) => {
+        return `${manager.first_name} ${manager.last_name}`;
+      });
+      employeeManagerChoice.push("NONE");
+
       const { firstName, lastName, employeeRole, employeeManager } =
         await inquirer.prompt([
           {
@@ -58,9 +66,28 @@ async function displayQuestion() {
             name: "employeeManager",
             type: "list",
             message: "Who is the employee's manager?",
-            choices: "",
+            choices: employeeManagerChoice,
           },
         ]);
+      const { id: employeeRoleID } = employeeRoles.find((item) => {
+        return item.title === employeeRole;
+      });
+      const { id: managerId } = employeeManagers.find((item) => {
+        console.log("employeeManager", employeeManager);
+        console.log(item.first_name + " " + item.last_name);
+        const employeeFullName = item.first_name + " " + item.last_name;
+        return employeeFullName === employeeManager;
+      });
+      const employeeTable =
+        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+      const employeeValues = [
+        firstName,
+        lastName,
+        employeeRoleID,
+        employeeManager === "NONE" ? null : managerId,
+      ];
+      await db.execute(employeeTable, employeeValues);
+      console.log("Employee added");
       break;
 
     case "Add Department":
