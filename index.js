@@ -23,6 +23,7 @@ async function displayQuestion() {
         "Add Role",
         "View All Departments",
         "Add Department",
+        "Quit"
       ],
     },
   ]);
@@ -219,6 +220,11 @@ async function displayQuestion() {
       const roleValues = [role, salary, id];
       await db.execute(roleTable, roleValues);
       console.log("Role added");
+      break;
+
+    case "Quit":
+      console.log("BYE BYE");
+      process.exit();
       break;
   }
   displayQuestion();
