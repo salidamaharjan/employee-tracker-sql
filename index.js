@@ -2,7 +2,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 const { printTable } = require("console-table-printer");
-const { viewAllDepartments } = require("./department.js");
+const { viewAllDepartments, addDepartment } = require("./department.js");
 displayQuestion();
 
 /**
@@ -154,23 +154,11 @@ async function displayQuestion() {
       break;
 
     case "Add Department":
-      const { departmentName } = await inquirer.prompt([
-        {
-          name: "departmentName",
-          type: "input",
-          message: "Enter department name?",
-        },
-      ]);
-      // console.log(departmentName);
-      // using prepared statement to insert the name of department to db
-      const sql = "INSERT INTO department (name) VALUES (?)";
-      const values = [departmentName];
-      await db.execute(sql, values);
-      console.log("Department inserted");
+      await addDepartment(db);
       break;
 
     case "View All Departments":
-      viewAllDepartments(db);
+      await viewAllDepartments(db);
       break;
 
     case "View All Roles":
