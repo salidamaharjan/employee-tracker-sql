@@ -1,7 +1,7 @@
 // importing inquirer
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
-const { printTable } = require('console-table-printer');
+const { printTable } = require("console-table-printer");
 displayQuestion();
 
 /**
@@ -29,7 +29,23 @@ async function displayQuestion() {
   // console.log(choices);
   switch (choices) {
     case "View All Employee":
-      const [employees] = await db.query("SELECT * FROM employee");
+      const [employees] = await db.query(`
+      SELECT 
+          employee.id As 'Employee ID', 
+          employee.first_name AS 'First Name',
+          employee.last_name AS 'Last Name',
+          role.title AS Role,
+          role.salary AS Salary,
+          department.name AS 'Department Name',
+          CONCAT(manager.first_name,' ',manager.last_name) AS Manager
+       FROM employee
+        INNER JOIN role
+          ON role.id = employee.role_id
+        INNER JOIN department
+          ON department.id = role.department_id
+        LEFT JOIN employee manager
+          ON employee.manager_id = manager.id
+       `);
       printTable(employees);
       break;
 
@@ -74,12 +90,13 @@ async function displayQuestion() {
       const { id: employeeRoleID } = employeeRoles.find((item) => {
         return item.title === employeeRole;
       });
-      const { id: managerId } = employeeManagers.find((item) => {
-        // console.log("employeeManager", employeeManager);
-        // console.log(item.first_name + " " + item.last_name);
-        const employeeFullName = item.first_name + " " + item.last_name;
-        return employeeFullName === employeeManager;
-      });
+      const { id: managerId } =
+        employeeManagers.find((item) => {
+          // console.log("employeeManager", employeeManager);
+          // console.log(item.first_name + " " + item.last_name);
+          const employeeFullName = item.first_name + " " + item.last_name;
+          return employeeFullName === employeeManager;
+        }) || {};
       const employeeTable =
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
       const employeeValues = [
@@ -93,19 +110,21 @@ async function displayQuestion() {
       break;
 
     case "Update Employee Role":
-      const [employeeNames] = await db.query("SELECT id, first_name, last_name FROM employee")
+      const [employeeNames] = await db.query(
+        "SELECT id, first_name, last_name FROM employee"
+      );
       const [roleEmployees] = await db.query("SELECT id, title FROM role");
       const employeeName = employeeNames.map((name) => {
         return `${name.first_name} ${name.last_name}`;
       });
       // console.log(roleEmployees);
       // console.log(employeeNames);
-     const { nameEmployee, toRole} = await inquirer.prompt([
+      const { nameEmployee, toRole } = await inquirer.prompt([
         {
           name: "nameEmployee",
           type: "list",
           message: "Which employee role you want to update?",
-          choices: employeeName
+          choices: employeeName,
         },
         {
           name: "toRole",
@@ -116,16 +135,17 @@ async function displayQuestion() {
           }),
         },
       ]);
-      const {id: employeeID} = employeeNames.find((item) => {
+      const { id: employeeID } = employeeNames.find((item) => {
         const employeeFullName = item.first_name + " " + item.last_name;
         return employeeFullName === nameEmployee;
       });
-      const {id: roleID} = roleEmployees.find((item) => {
+      const { id: roleID } = roleEmployees.find((item) => {
         return item.title === toRole;
       });
       console.log(employeeID);
       console.log(roleID);
-      const updatedEmployeeTable = ("UPDATE employee SET role_id = ? WHERE id = ?");
+      const updatedEmployeeTable =
+        "UPDATE employee SET role_id = ? WHERE id = ?";
       const valuesUpdate = [roleID, employeeID];
       await db.execute(updatedEmployeeTable, valuesUpdate);
       console.log("Employee Role updated");
@@ -153,7 +173,12 @@ async function displayQuestion() {
       break;
 
     case "View All Roles":
-      const [roles] = await db.query("SELECT * FROM role");
+      const [roles] =
+        await db.query(`SELECT role.id, role.title, role.salary, department.name 
+      FROM role
+        INNER JOIN department 
+          ON role.department_id = department.id
+      `);
       printTable(roles);
       break;
 
