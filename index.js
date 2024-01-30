@@ -1,6 +1,7 @@
 // importing inquirer
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
+const { printTable } = require('console-table-printer');
 displayQuestion();
 
 /**
@@ -29,7 +30,7 @@ async function displayQuestion() {
   switch (choices) {
     case "View All Employee":
       const [employees] = await db.query("SELECT * FROM employee");
-      console.table(employees);
+      printTable(employees);
       break;
 
     case "Add Employee":
@@ -148,12 +149,12 @@ async function displayQuestion() {
 
     case "View All Departments":
       const [departments] = await db.query("SELECT * FROM department");
-      console.table(departments);
+      printTable(departments);
       break;
 
     case "View All Roles":
       const [roles] = await db.query("SELECT * FROM role");
-      console.table(roles);
+      printTable(roles);
       break;
 
     case "Add Role":
