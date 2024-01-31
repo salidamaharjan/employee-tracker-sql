@@ -25,4 +25,5 @@ async function addDepartment(db) {
       await db.execute(sql, values);
       console.log("Department inserted");
 }
+
 module.exports = { viewAllDepartments, addDepartment};

@@ -7,7 +7,8 @@ const {
   addEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
-  viewEmployeeByManager
+  viewEmployeeByManager, 
+  viewEmployeesByDepartment
 } = require("./employee.js");
 const { viewAllRoles, addRole } = require("./role.js");
 
@@ -33,6 +34,7 @@ async function displayQuestion() {
         "View All Roles",
         "Add Role",
         "View All Departments",
+        "View Employees By Department",
         "Add Department",
         "Quit",
       ],
@@ -64,6 +66,9 @@ async function displayQuestion() {
       await viewAllDepartments(db);
       break;
 
+    case "View Employees By Department":
+      await viewEmployeesByDepartment(db);
+    break;
     case "View All Roles":
       await viewAllRoles(db);
       break;

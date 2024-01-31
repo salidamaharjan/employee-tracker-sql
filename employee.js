@@ -189,11 +189,11 @@ async function viewEmployeeByManager(db) {
       choices: employees.map((item) => item.manager_name),
     },
   ]);
-  console.log(managerName); //Salida M
+  // console.log(managerName); //Salida M
   const { id: managerId } = employees.find(
     (item) => item.manager_name === managerName
   );
-  console.log(managerId); //1
+  // console.log(managerId); //1
 
   const employeeWithSelectedManagerQuery= `
   SELECT 
@@ -220,10 +220,54 @@ async function viewEmployeeByManager(db) {
   printTable(managersEmployee);
 }
 
+async function viewEmployeesByDepartment(db) {
+  const [ departments ] = await db.query(`
+  SELECT * from department`
+  );
+  const departmentNames = departments.map((item) => item.name); 
+
+  // console.log(departments); 
+  // console.log(departmentNames);
+const { department } = await inquirer.prompt([
+  {
+    name: "department",
+    type: "list",
+    message: "Which department do you want to choose?",
+    choices: departmentNames
+  }
+]);
+
+const showEmployeeByDepartQuery = `
+SELECT 
+    employee.id As 'Employee ID', 
+    employee.first_name AS 'First Name',
+    employee.last_name AS 'Last Name',
+    role.title AS Role,
+    role.salary AS Salary,
+    department.name AS 'Department Name',
+    CONCAT(manager.first_name,' ',manager.last_name) AS Manager
+  FROM employee
+  INNER JOIN role
+    ON role.id = employee.role_id
+  INNER JOIN department
+    ON department.id = role.department_id
+  LEFT JOIN employee manager
+    ON employee.manager_id = manager.id
+  WHERE department.id = ?
+  ORDER BY employee.id
+`
+const {id: departmentID} = departments.find((item) => item.name === department );
+const departmentIdValue = [departmentID]
+const [ employeeByDepartment ] = await db.execute(showEmployeeByDepartQuery, departmentIdValue);
+console.log(`Employee under ${department}`);
+printTable(employeeByDepartment);
+}
+
 module.exports = {
   viewAllEmployee,
   addEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
   viewEmployeeByManager,
+  viewEmployeesByDepartment
 };
