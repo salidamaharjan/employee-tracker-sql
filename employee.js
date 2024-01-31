@@ -167,13 +167,63 @@ async function updateEmployeeManager(db) {
     newManager === "NONE" ? null : newManagerId,
     selectedNameId,
   ];
-  
+
   await db.execute(updatedManager, updateValueForManager);
   console.log("Manager Updated");
 }
+
+async function viewEmployeeByManager(db) {
+  const [employees] = await db.query(`
+  SELECT manager.id, 
+         CONCAT(manager.first_name, ' ', manager.last_name) AS manager_name
+  FROM employee manager
+    INNER JOIN employee
+      ON manager.id = employee.manager_id
+  `);
+
+  const { managerName } = await inquirer.prompt([
+    {
+      name: "managerName",
+      type: "list",
+      message: "Choose a manager to view the employees working under?",
+      choices: employees.map((item) => item.manager_name),
+    },
+  ]);
+  console.log(managerName); //Salida M
+  const { id: managerId } = employees.find(
+    (item) => item.manager_name === managerName
+  );
+  console.log(managerId); //1
+
+  const employeeWithSelectedManagerQuery= `
+  SELECT 
+    employee.id As 'Employee ID', 
+    employee.first_name AS 'First Name',
+    employee.last_name AS 'Last Name',
+    role.title AS Role,
+    role.salary AS Salary,
+    department.name AS 'Department Name',
+    CONCAT(manager.first_name,' ',manager.last_name) AS Manager
+  FROM employee
+  INNER JOIN role
+    ON role.id = employee.role_id
+  INNER JOIN department
+    ON department.id = role.department_id
+  LEFT JOIN employee manager
+    ON employee.manager_id = manager.id
+  WHERE employee.manager_id = ?
+  ORDER BY employee.id
+  `;
+  const managerIdValue = [ managerId ] 
+  const [ managersEmployee ]= await db.execute(employeeWithSelectedManagerQuery, managerIdValue);
+  console.log(`Employee under ${managerName}`);
+  printTable(managersEmployee);
+}
+
 module.exports = {
   viewAllEmployee,
   addEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
+  viewEmployeeByManager,
 };
