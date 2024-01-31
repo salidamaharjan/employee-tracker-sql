@@ -44,4 +44,30 @@ async function addRole(db) {
       console.log("Role added");
 }
 
-module.exports = { viewAllRoles, addRole};
+async function deleteRole(db) {
+  const [ roleTableAsArray ] = await db.query(`
+  SELECT id, title FROM role`);
+  // console.log(roleTableAsArray);
+
+  const titles = roleTableAsArray.map((item) => item.title);
+  // console.log(titles);
+
+  const { selectedRole } = await inquirer.prompt([
+    {
+      name: "selectedRole",
+      type: "list",
+      message: "Which role you want to delete?",
+      choices: titles
+    }
+  ]);
+  // console.log(selectedRole);
+  const { id: roleId } = roleTableAsArray.find((item) => item.title === selectedRole);
+  // console.log(roleId);
+  const deleteRoleQuery = `DELETE FROM role
+  WHERE id = ?`;
+  const idValue = [ roleId ];
+  await db.execute(deleteRoleQuery, idValue);
+  console.log(`${selectedRole} has been deleted`);
+}
+
+module.exports = { viewAllRoles, addRole, deleteRole};
