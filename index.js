@@ -1,4 +1,4 @@
-// importing inquirer
+// importing files
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 const { viewAllDepartments, addDepartment } = require("./department.js");
@@ -6,6 +6,7 @@ const {
   viewAllEmployee,
   addEmployee,
   updateEmployeeRole,
+  updateEmployeeManager
 } = require("./employee.js");
 const { viewAllRoles, addRole } = require("./role.js");
 
@@ -26,6 +27,7 @@ async function displayQuestion() {
         "View All Employee",
         "Add Employee",
         "Update Employee Role",
+        "Update Employee Manager",
         "View All Roles",
         "Add Role",
         "View All Departments",
@@ -62,6 +64,10 @@ async function displayQuestion() {
 
     case "Add Role":
       await addRole(db);
+      break;
+
+    case "Update Employee Manager":
+      await updateEmployeeManager(db);
       break;
 
     case "Quit":

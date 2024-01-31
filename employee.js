@@ -1,5 +1,5 @@
 const { printTable } = require("console-table-printer");
-const inquirer = require('inquirer');
+const inquirer = require("inquirer");
 
 async function viewAllEmployee(db) {
   const [employees] = await db.query(`
@@ -24,104 +24,156 @@ async function viewAllEmployee(db) {
 }
 
 async function addEmployee(db) {
-    const [employeeRoles] = await db.query("SELECT id, title FROM role");
-      // console.log(employeeRoles);
-      const [employeeManagers] = await db.query(
-        "SELECT id, first_name, last_name FROM employee"
-      );
-      const employeeManagerChoice = employeeManagers.map((manager) => {
-        return `${manager.first_name} ${manager.last_name}`;
-      });
-      employeeManagerChoice.push("NONE");
+  const [employeeRoles] = await db.query("SELECT id, title FROM role");
+  // console.log(employeeRoles);
+  const [employeeManagers] = await db.query(
+    "SELECT id, first_name, last_name FROM employee"
+  );
+  const employeeManagerChoice = employeeManagers.map((manager) => {
+    return `${manager.first_name} ${manager.last_name}`;
+  });
+  employeeManagerChoice.push("NONE");
 
-      const { firstName, lastName, employeeRole, employeeManager } =
-        await inquirer.prompt([
-          {
-            name: "firstName",
-            type: "input",
-            message: "What is the employee's first name?",
-          },
-          {
-            name: "lastName",
-            type: "input",
-            message: "What is the employees's last name?",
-          },
-          {
-            name: "employeeRole",
-            type: "list",
-            message: "What is the employee's role?",
-            choices: employeeRoles.map((employee) => {
-              return employee.title;
-            }),
-          },
-          {
-            name: "employeeManager",
-            type: "list",
-            message: "Who is the employee's manager?",
-            choices: employeeManagerChoice,
-          },
-        ]);
-      const { id: employeeRoleID } = employeeRoles.find((item) => {
-        return item.title === employeeRole;
-      });
-      const { id: managerId } =
-        employeeManagers.find((item) => {
-          // console.log("employeeManager", employeeManager);
-          // console.log(item.first_name + " " + item.last_name);
-          const employeeFullName = item.first_name + " " + item.last_name;
-          return employeeFullName === employeeManager;
-        }) || {};
-      const employeeTable =
-        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
-      const employeeValues = [
-        firstName,
-        lastName,
-        employeeRoleID,
-        employeeManager === "NONE" ? null : managerId,
-      ];
-      await db.execute(employeeTable, employeeValues);
-      console.log("Employee added");
+  const { firstName, lastName, employeeRole, employeeManager } =
+    await inquirer.prompt([
+      {
+        name: "firstName",
+        type: "input",
+        message: "What is the employee's first name?",
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is the employees's last name?",
+      },
+      {
+        name: "employeeRole",
+        type: "list",
+        message: "What is the employee's role?",
+        choices: employeeRoles.map((employee) => {
+          return employee.title;
+        }),
+      },
+      {
+        name: "employeeManager",
+        type: "list",
+        message: "Who is the employee's manager?",
+        choices: employeeManagerChoice,
+      },
+    ]);
+  const { id: employeeRoleID } = employeeRoles.find((item) => {
+    return item.title === employeeRole;
+  });
+  const { id: managerId } =
+    employeeManagers.find((item) => {
+      // console.log("employeeManager", employeeManager);
+      // console.log(item.first_name + " " + item.last_name);
+      const employeeFullName = item.first_name + " " + item.last_name;
+      return employeeFullName === employeeManager;
+    }) || {};
+  const employeeTable =
+    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+  const employeeValues = [
+    firstName,
+    lastName,
+    employeeRoleID,
+    employeeManager === "NONE" ? null : managerId,
+  ];
+  await db.execute(employeeTable, employeeValues);
+  console.log("Employee added");
 }
 
 async function updateEmployeeRole(db) {
-    const [employeeNames] = await db.query(
-        "SELECT id, first_name, last_name FROM employee"
-      );
-      const [roleEmployees] = await db.query("SELECT id, title FROM role");
-      const employeeName = employeeNames.map((name) => {
-        return `${name.first_name} ${name.last_name}`;
-      });
-      // console.log(roleEmployees);
-      // console.log(employeeNames);
-      const { nameEmployee, toRole } = await inquirer.prompt([
-        {
-          name: "nameEmployee",
-          type: "list",
-          message: "Which employee role you want to update?",
-          choices: employeeName,
-        },
-        {
-          name: "toRole",
-          type: "list",
-          message: "Which role do you want to assign the selected employee?",
-          choices: roleEmployees.map((employee) => {
-            return employee.title;
-          }),
-        },
-      ]);
-      const { id: employeeID } = employeeNames.find((item) => {
-        const employeeFullName = item.first_name + " " + item.last_name;
-        return employeeFullName === nameEmployee;
-      });
-      const { id: roleID } = roleEmployees.find((item) => {
-        return item.title === toRole;
-      });
-      console.log(employeeID);
-      console.log(roleID);
-      const updatedEmployeeTable =
-        "UPDATE employee SET role_id = ? WHERE id = ?";
-      const valuesUpdate = [roleID, employeeID];
-      await db.execute(updatedEmployeeTable, valuesUpdate);
-      console.log("Employee Role updated");
+  const [employeeNames] = await db.query(
+    "SELECT id, first_name, last_name FROM employee"
+  );
+  const [roleEmployees] = await db.query("SELECT id, title FROM role");
+  const employeeName = employeeNames.map((name) => {
+    return `${name.first_name} ${name.last_name}`;
+  });
+  // console.log(roleEmployees);
+  // console.log(employeeNames);
+  const { nameEmployee, toRole } = await inquirer.prompt([
+    {
+      name: "nameEmployee",
+      type: "list",
+      message: "Which employee role you want to update?",
+      choices: employeeName,
+    },
+    {
+      name: "toRole",
+      type: "list",
+      message: "Which role do you want to assign the selected employee?",
+      choices: roleEmployees.map((employee) => {
+        return employee.title;
+      }),
+    },
+  ]);
+  const { id: employeeID } = employeeNames.find((item) => {
+    const employeeFullName = item.first_name + " " + item.last_name;
+    return employeeFullName === nameEmployee;
+  });
+  const { id: roleID } = roleEmployees.find((item) => {
+    return item.title === toRole;
+  });
+  console.log(employeeID);
+  console.log(roleID);
+  const updatedEmployeeTable = "UPDATE employee SET role_id = ? WHERE id = ?";
+  const valuesUpdate = [roleID, employeeID];
+  await db.execute(updatedEmployeeTable, valuesUpdate);
+  console.log("Employee Role updated");
 }
-module.exports = { viewAllEmployee, addEmployee, updateEmployeeRole };
+
+async function updateEmployeeManager(db) {
+  const [employeeManagers] = await db.query(
+    "SELECT id, first_name, last_name FROM employee"
+  );
+
+  const employeeChoice = employeeManagers.map((manager) => {
+    return `${manager.first_name} ${manager.last_name}`;
+  });
+  employeeChoice.push("NONE");
+
+  const { selectedName, newManager } = await inquirer.prompt([
+    {
+      name: "selectedName",
+      message: "Which employee's manager you want to update?",
+      type: "list",
+      choices: employeeChoice,
+    },
+    {
+      name: "newManager",
+      message: "Which employee you want to choose as a manager?",
+      type: "list",
+      choices: employeeChoice,
+    },
+  ]);
+  // console.log(selectedName);
+  // console.log(newManager);
+
+  const { id: selectedNameId } = employeeManagers.find(
+    (item) => `${item.first_name} ${item.last_name}` === selectedName
+  );
+  const { id: newManagerId } =
+    employeeManagers.find((item) => {
+      const employeeFullName = `${item.first_name} ${item.last_name}`;
+      return employeeFullName === newManager;
+    }) || {};
+
+  // console.log(selectedNameId, newManagerId);
+
+  const updatedManager = "UPDATE employee SET manager_id = ? WHERE id = ? ";
+  const updateValueForManager = [
+    newManager === "NONE" ? null : newManagerId,
+    selectedNameId,
+  ];
+  
+  await db.execute(updatedManager, updateValueForManager);
+  console.log("Manager Updated");
+}
+module.exports = {
+  viewAllEmployee,
+  addEmployee,
+  updateEmployeeRole,
+  updateEmployeeManager,
+};
