@@ -5,6 +5,7 @@ const { viewAllDepartments, addDepartment, deleteDepartment } = require("./depar
 const {
   viewAllEmployee,
   addEmployee,
+  deleteEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
   viewEmployeeByManager, 
@@ -28,6 +29,7 @@ async function displayQuestion() {
       choices: [
         "View All Employee",
         "Add Employee",
+        "Delete Employee",
         "Update Employee Role",
         "Update Employee Manager",
         "View Employee By Manager",
@@ -52,6 +54,9 @@ async function displayQuestion() {
       await addEmployee(db);
       break;
 
+    case "Delete Employee":
+      await deleteEmployee(db);
+    break;
     case "Update Employee Role":
       await updateEmployeeRole(db);
       break;

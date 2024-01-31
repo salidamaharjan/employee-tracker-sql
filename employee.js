@@ -263,9 +263,35 @@ console.log(`Employee under ${department}`);
 printTable(employeeByDepartment);
 }
 
+async function deleteEmployee(db) {
+const[ employeeTable ] = await db.query(`
+SELECT id, CONCAT(first_name,' ', last_name) as Employee_Name
+FROM employee`);
+// console.log(employeeTable);
+const employeeNames = employeeTable.map((item)=> item.Employee_Name);
+// console.log(employeeNames);
+ const { selectedEmployee } = await inquirer.prompt([
+  {
+    name: "selectedEmployee",
+    type: "list",
+    message: "Which employee would you like to delete?",
+    choices: employeeNames
+  }
+ ]);
+//  console.log(selectedEmployee);
+ const {id: selectedEmployeeId} = employeeTable.find((item) => item.Employee_Name === selectedEmployee);
+ const deleteEmployeeQuery = `
+ DELETE FROM employee
+ WHERE id = ?`
+ const idValue = [ selectedEmployeeId ];
+ await db.execute(deleteEmployeeQuery, idValue);
+ console.log(`${selectedEmployee} has been removed`);
+}
+
 module.exports = {
   viewAllEmployee,
   addEmployee,
+  deleteEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
   viewEmployeeByManager,
