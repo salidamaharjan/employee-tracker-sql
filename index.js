@@ -1,17 +1,41 @@
 // importing files
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
-const { viewAllDepartments, addDepartment, deleteDepartment, viewTotalUtilizedBudgetOfDepartment } = require("./department.js");
+const figlet = require("figlet");
+const {
+  viewAllDepartments,
+  addDepartment,
+  deleteDepartment,
+  viewTotalUtilizedBudgetOfDepartment,
+} = require("./department.js");
 const {
   viewAllEmployee,
   addEmployee,
   deleteEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
-  viewEmployeeByManager, 
-  viewEmployeesByDepartment
+  viewEmployeeByManager,
+  viewEmployeesByDepartment,
 } = require("./employee.js");
 const { viewAllRoles, addRole, deleteRole } = require("./role.js");
+
+console.log(
+  figlet.textSync("EMPLOYEE", {
+    font: "Straight",
+    horizontalLayout: "default",
+    verticalLayout: "default",
+    whitespaceBreak: true,
+  })
+);
+
+console.log(
+  figlet.textSync("TRACKER", {
+    font: "Straight",
+    horizontalLayout: "default",
+    verticalLayout: "default",
+    whitespaceBreak: true,
+  })
+);
 
 displayQuestion();
 
@@ -57,12 +81,12 @@ async function displayQuestion() {
 
     case "Delete Employee":
       await deleteEmployee(db);
-    break;
-    
+      break;
+
     case "Update Employee Role":
       await updateEmployeeRole(db);
       break;
-    
+
     case "View Employee By Manager":
       await viewEmployeeByManager(db);
       break;
@@ -77,7 +101,7 @@ async function displayQuestion() {
 
     case "View Employees By Department":
       await viewEmployeesByDepartment(db);
-    break;
+      break;
 
     case "View All Roles":
       await viewAllRoles(db);
@@ -89,19 +113,19 @@ async function displayQuestion() {
 
     case "Delete Role":
       await deleteRole(db);
-    break;
+      break;
 
     case "Update Employee Manager":
       await updateEmployeeManager(db);
       break;
 
     case "Delete Department":
-     await deleteDepartment(db);
-    break;
+      await deleteDepartment(db);
+      break;
 
     case "View Total Utilized Budget of Department":
       await viewTotalUtilizedBudgetOfDepartment(db);
-    break;
+      break;
 
     case "Quit":
       console.log("BYE BYE");
