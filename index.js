@@ -1,7 +1,7 @@
 // importing files
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
-const { viewAllDepartments, addDepartment, deleteDepartment } = require("./department.js");
+const { viewAllDepartments, addDepartment, deleteDepartment, viewTotalUtilizedBudgetOfDepartment } = require("./department.js");
 const {
   viewAllEmployee,
   addEmployee,
@@ -40,6 +40,7 @@ async function displayQuestion() {
         "View Employees By Department",
         "Add Department",
         "Delete Department",
+        "View Total Utilized Budget of Department",
         "Quit",
       ],
     },
@@ -57,6 +58,7 @@ async function displayQuestion() {
     case "Delete Employee":
       await deleteEmployee(db);
     break;
+    
     case "Update Employee Role":
       await updateEmployeeRole(db);
       break;
@@ -95,6 +97,10 @@ async function displayQuestion() {
 
     case "Delete Department":
      await deleteDepartment(db);
+    break;
+
+    case "View Total Utilized Budget of Department":
+      await viewTotalUtilizedBudgetOfDepartment(db);
     break;
 
     case "Quit":

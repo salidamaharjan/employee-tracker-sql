@@ -51,4 +51,34 @@ async function deleteDepartment(db) {
   console.log(`${department} has been deleted`)
 }
 
-module.exports = { viewAllDepartments, addDepartment, deleteDepartment };
+async function viewTotalUtilizedBudgetOfDepartment(db) {
+  const [ departObj ] = await db.query(`SELECT department.id, department.name
+  FROM department`);
+  // console.log(departObj);
+  const departNames = departObj.map((item) => item.name);
+  // console.log(departNames);
+  const { selectedDepart } = await inquirer.prompt([
+    {
+      name: "selectedDepart",
+      message: "Choose a department to view total utilized budget",
+      type: "list",
+      choices: departNames
+    }
+  ]);
+  // console.log(selectedDepart);
+  const {id: departId} = departObj.find((item) => selectedDepart === item.name);
+  // console.log(departId);
+  const budgetByDepartQuery = `
+  SELECT d.id AS ID, SUM(salary) AS Budget ,d.name AS Department
+  FROM role
+    INNER JOIN department d 
+      ON ROLE.department_id = d.id 
+  WHERE d.id = ?
+  GROUP BY role.department_id
+  `
+  const departIDValue = [ departId ];
+  const [ budgetTable ] = await db.execute(budgetByDepartQuery, departIDValue);
+  printTable(budgetTable);
+}
+
+module.exports = { viewAllDepartments, addDepartment, deleteDepartment, viewTotalUtilizedBudgetOfDepartment };
