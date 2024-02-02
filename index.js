@@ -19,6 +19,7 @@ const {
 } = require("./employee.js");
 const { viewAllRoles, addRole, deleteRole } = require("./role.js");
 
+//Creating a banner
 console.log(
   figlet.textSync("EMPLOYEE", {
     font: "Straight",

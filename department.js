@@ -1,12 +1,16 @@
 const { printTable } = require("console-table-printer");
 const inquirer = require("inquirer");
 
+// view all department in the database
 async function viewAllDepartments(db) {
+  //array destructuring used to get all the departments
+  //getting id and name column from department table
   const [departments] = await db.query(`
       SELECT 
           department.id AS 'Department ID',
           department.name AS 'Department Name'
         FROM department`);
+  //printing as a table of all available departments.
   printTable(departments);
 }
 
@@ -39,9 +43,11 @@ async function deleteDepartment(db) {
       choices: departName,
     },
   ]);
+  // only getting id from the departments
   const { id: departId } = departs.find((item) => item.name === department);
   console.log(departId);
-
+ 
+  //deleting the department which has the id value in departId
   const deleteQuery = `
   DELETE FROM department
   WHERE id = ? `;
